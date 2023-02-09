@@ -20,6 +20,7 @@ const Trainer = () => {
     if(error) return <p>Error {error.message}</p>
     
     const trainer = data?.trainer || {}
+    console.log(trainer)
 
 
     return (
@@ -41,7 +42,7 @@ const Trainer = () => {
             <h2>My Pokemon</h2>
             <ul>
                 {trainer.pokemon.map((pokemon, i) => {
-                    <li key={`${pokemon.name}-${i}`}>{pokemon.name}</li>
+                   return <li key={`${pokemon.name}-${i}`}>{pokemon.name}</li>
                 })}
             </ul>
         </>
