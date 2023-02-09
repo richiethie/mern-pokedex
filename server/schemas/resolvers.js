@@ -1,4 +1,7 @@
+const { GraphQLError } = require('graphql')
 const { Pokemon, Trainer } = require('../models')
+const { signToken } = require('../utils/auth')
+
 
 const resolvers = {
     Query: {
@@ -16,6 +19,33 @@ const resolvers = {
         },
     },
     Mutation: {
+        login: async (parent, { email, password }, context, info) => {
+            // find trainer in db, based on email
+            const trainer = await Trainer.findOne({ email })
+            if (!trainer) {
+                throw new GraphQLError('Trainer not found', {
+                    extensions: {
+                        code: 'USER NOT FOUND',
+                        http: { status: 404 }
+                    }
+                })
+            }
+            // verify password
+            const isCorrectPassword = await trainer.isCorrectPassword(password)
+            if (!isCorrectPassword) {
+                throw new GraphQLError('Password incorrect', {
+                    extensions: {
+                        code: 'INCORRECT PASSWORD',
+                        http: { status: 401 }
+                    }
+                })
+            }
+            // sign token
+            const token = signToken(trainer)
+            //return object that resembles Auth
+            return { token, trainer }
+        },
+
         addPokemon: async (parent, args, context, info) => {
             const pokemon = await Pokemon.create(args)
             if(args.trainerId) {
@@ -29,7 +59,8 @@ const resolvers = {
             
         },
         addTrainer: async (parent, args, context, info) => {
-            return await Trainer.create(args)
+           const trainer =  await Trainer.create(args)
+           return trainer.populate('pokemon')
         },
     }
 }
