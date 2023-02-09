@@ -52,7 +52,6 @@ const PokemonDetails = (props) => {
                 <h3>ID: {id}</h3>
                 {Auth.loggedIn() && (
                     <button onClick={savePokemon}>
-                        {/* change color based on theme */}
                         <MdSave size={25}  />
                     </button>
                 )}
